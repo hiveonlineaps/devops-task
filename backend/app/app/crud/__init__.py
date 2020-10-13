@@ -1,5 +1,8 @@
-from .crud_item import item
 from .crud_user import user
+from .commitmentcategory import category
+from .commitment import commitment
+#from .reputation import reputation
+from .transaction import transaction
 
 # For a new basic set of CRUD operations you could just do
 

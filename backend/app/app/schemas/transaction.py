@@ -6,10 +6,10 @@ from pydantic import BaseModel
 
 # Shared properties
 class TransactionBase(BaseModel):
-    deliverer: Optional[int] = None
-    commitment_id: Optional[int] = None
-    delivery_value: Optional[float] = None
-    delivery_date: date = None
+    deliverer: int
+    commitment_id: int
+    delivery_value: float
+    delivery_date: date
 
 
 # Properties to receive on item creation

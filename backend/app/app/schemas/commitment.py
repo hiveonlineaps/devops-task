@@ -7,12 +7,12 @@ from pydantic import BaseModel
 
 # Shared properties
 class CommitmentBase(BaseModel):
-    category_id: Optional[int] = None
-    commitment_value: Optional[float] = None
+    category_id: int = None
+    commitment_value: float = None
     description: Optional[str] = None
-    delivery_date: Optional[date] = None
-    deliverer: Optional[int] = None
-    reporter: Optional[int] = None
+    delivery_date: date = None
+    deliverer: int = None
+    reporter: int = None
 
 
 # Properties to receive on item creation

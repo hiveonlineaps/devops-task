@@ -5,9 +5,9 @@ from pydantic import BaseModel
 
 # Shared properties
 class CategoryBase(BaseModel):
-    name: Optional[str] = None
+    name: str
     description: Optional[str] = None
-    weight: float = None
+    weight: float
 
 
 # Properties to receive on item creation

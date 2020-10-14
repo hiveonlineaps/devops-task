@@ -28,8 +28,8 @@ def get_reputations(user_id: int, db: Session = Depends(deps.get_db)):
     reputations = reputation.get_reputations_by_user(db, user_id=user_id)
     return reputations
 
-#
-# @router.get("/reputation_/", response_model=str)
-# def compute_reputation(db: Session = Depends(get_db)):
-#     reputations = operations.compute_reputation(db)
-#     return reputations
+
+@router.get("/reputation_/", response_model=str)
+def compute_reputation(db: Session = Depends(deps.get_db)):
+    reputations = crud.computation.compute_reputation(db)
+    return reputations

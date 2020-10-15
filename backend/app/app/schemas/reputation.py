@@ -10,9 +10,6 @@ class ReputationBase(BaseModel):
     reputation_score: Optional[float] = None
     created_date:  Optional[datetime] = None
 
-    class Config:
-        orm_mode = True
-
 
 # Properties to receive on item creation
 class ReputationCreate(ReputationBase):
@@ -26,18 +23,19 @@ class ReputationUpdate(ReputationBase):
     pass
 
 
-# # Properties shared by models stored in DB
-# class ReputationInDBBase(ReputationBase):
-#     id: int
-#
-#
+# Properties shared by models stored in DB
+class ReputationInDBBase(ReputationBase):
+    id: int
+
+    class Config:
+        orm_mode = True
 
 
 # Properties to return to client
-class Reputation(ReputationBase):
+class Reputation(ReputationInDBBase):
     pass
 
 
 # Properties properties stored in DB
-class ReputationInDB(ReputationBase):
+class ReputationInDB(ReputationInDBBase):
     pass

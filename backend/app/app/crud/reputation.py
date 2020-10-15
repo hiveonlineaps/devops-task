@@ -12,15 +12,15 @@ from app.schemas.reputation import ReputationCreate, ReputationInDB, ReputationU
 
 
 def get_reputation(db: Session, skip: int = 0, limit: int = 100) ->List[Reputation]:
-    return db.query(Reputation.user_id.distinct(), Reputation.reputation_score.distinct(), Reputation.create_date).offset(skip).limit(limit).all()
+    return db.query(Reputation).offset(skip).limit(limit).all()
 
 
 def get_reputation_by_user(db: Session, user_id: int):
-    return db.query(Reputation).filter(Reputation.user == user_id).order_by(Reputation.id.desc()).first()
+    return db.query(Reputation).filter(Reputation.user_id == user_id).order_by(Reputation.id.desc()).first()
 
 
 def get_reputations_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100):
-    return db.query(Reputation).filter(Reputation.user == user_id).offset(skip).limit(limit).all()
+    return db.query(Reputation).filter(Reputation.user_id == user_id).offset(skip).limit(limit).all()
 
 
 def create(

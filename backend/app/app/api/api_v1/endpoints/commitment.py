@@ -67,18 +67,3 @@ def read_commitment_by_id(
     if current_user:
         commitment = crud.transaction.get_commitment_by_id(db=db, commitment_id=commitment_id)
         return commitment
-
-
-
-@router.get("/reputation/test", response_model=List[schemas.Rep])
-def read_commitment_by_deliverer(
-    db: Session = Depends(deps.get_db),
-    current_user: models.User = Depends(deps.get_current_active_user),
-
-) -> Any:
-    """
-    Retrieve commitment data per deliverer
-    """
-
-    reputation = crud.reputation.compute_reputation(db=db)
-    return reputation

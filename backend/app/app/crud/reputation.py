@@ -1,22 +1,33 @@
 from typing import List, Optional
 from itertools import groupby
 from operator import itemgetter
-from pprint import pprint
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+import collections
+import datetime
 
-from app.crud.base import CRUDBase
 from app.models.database import Reputation, User, Commitment, Transaction, CommitmentCategory
 from app.schemas.reputation import ReputationCreate, ReputationInDB, ReputationUpdate
 
 
+def get_reputation(db: Session, skip: int = 0, limit: int = 100) ->List[Reputation]:
+    return db.query(Reputation.user_id.distinct(), Reputation.reputation_score.distinct(), Reputation.create_date).offset(skip).limit(limit).all()
+
+
+def get_reputation_by_user(db: Session, user_id: int):
+    return db.query(Reputation).filter(Reputation.user == user_id).order_by(Reputation.id.desc()).first()
+
+
+def get_reputations_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100):
+    return db.query(Reputation).filter(Reputation.user == user_id).offset(skip).limit(limit).all()
+
 
 def create(
-        self, db: Session, *, obj_in: ReputationCreate
-) -> ReputationCreate:
+     db: Session, *, obj_in: ReputationCreate
+) -> Reputation:
     obj_in_data = jsonable_encoder(obj_in)
-    db_obj = self.model(**obj_in_data)
+    db_obj = Reputation(**obj_in_data)
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
@@ -50,45 +61,73 @@ def get_user_commitment_ids(db: Session) -> List[Commitment]:
     return db.query(Commitment.deliverer, Commitment.category_id).all()
 
 def compute_reputation(db: Session):
-    results = db.query(Commitment.deliverer, Commitment.category_id, Commitment.commitment_value,
-                       func.sum(Transaction.delivery_value)).join(Transaction, Commitment.deliverer == Transaction.deliverer, isouter= True).\
-                       group_by(Commitment.category_id, Commitment.deliverer, Commitment.commitment_value).all()
+    results = db.query(Transaction.commitment_id, Commitment.deliverer, Commitment.category_id, Commitment.commitment_value,
+                       func.sum(Transaction.delivery_value)).join(Transaction, Commitment.deliverer == Transaction.deliverer, isouter=True).\
+                       group_by(Transaction.commitment_id, Commitment.category_id, Commitment.deliverer, Commitment.commitment_value).all()
 
-    cols = ['deliverer', 'category_id', 'commitment_value', 'delivery_value']
+    cols = ['commitment_id','deliverer', 'category_id', 'commitment_value', 'delivery_value']
     results = [dict(zip(cols, l)) for l in results]
 
-    print(results)
-
-    #ids = get_user_commitment_ids(db=db) # get user ids from commitment table
-    #ids = list(set([i[0] for i in ids])) # convert list of tuples to list
-    # print(ids)
-    #
-    # keys = ("deliverer", "category_id")
-    # ids = [dict(zip(keys, values)) for values in ids]
-    #
-    # bar = {
-    #     k: [d.get(k) for d in ids]
-    #     for k in set().union(*ids)
-    # }
-    #
-    # pprint(bar)
-
-
     for result in results:
+        # score commitments
+        result['score'] = score_commitment(result['commitment_value'], result['delivery_value'])
 
-        result['score'] = score_commitment(result['commitment_value'], result['delivery_value']) * get_category_weight(db=db,
-                      category_id=result['category_id'])[0] # returned as a tuple
+    grouper = itemgetter("deliverer", "category_id")
+    result = []
+
+    # get an average score per user per category
+    for key, grp in groupby(sorted(results, key=grouper), grouper):
+        temp_dict = dict(zip(["deliverer", "category_id"], key))
+        temp_list = [item["score"] for item in grp]
+        temp_dict["score"] = sum(temp_list) / len(temp_list)
+        result.append(temp_dict)
+
+    counters = []
+    for d in result:
+        # determine which users have both (loan or production plan)
+        counters.append(d['deliverer'])
+    freq = dict(collections.Counter(counters))
+
+    both = [] # have both loan and production plans
+    single = [] # have either of the plans
+
+    for k,v in freq.items():
+        if v > 1:
+            both.append(k)
+        else:
+            single.append(k)
+
+    keys_to_remove = ['category_id', 'score'] # not needed for the final output
+
+    counter = collections.Counter()
+
+    for i in result:
+        if i['deliverer'] in both:
+            # multiply the score with weight
+            i['final_score'] = i['score'] * get_category_weight(db=db, category_id=i['category_id'])[0] # returned as a tuple
+        else:
+            i['final_score'] = i['score']
+        for k in keys_to_remove:
+            try:
+                del i[k]
+            except KeyError:
+                pass
+
+        # sum up the final score
+        counter[i['deliverer']] += i['final_score']
+
+    finaldict = dict(counter)
+    for key, value in finaldict.items():
+        data = {
+            'user_id': key,
+            'reputation_score': value,
+            'created_date':datetime.datetime.now()
+
+        }
+        create(db=db, obj_in=data)
 
 
 
-    # grouper = itemgetter("deliverer", "score")
-    # result = []
-    # for key, grp in groupby(sorted(results, key=grouper), grouper):
-    #     temp_dict = dict(zip(["deliverer", "score"], key))
-    #     temp_dict["score"] = sum(item["score"] for item in grp)
-    #     result.append(temp_dict)
-
-    #pprint(results)
 
 
 

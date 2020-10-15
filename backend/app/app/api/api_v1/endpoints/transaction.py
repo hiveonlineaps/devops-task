@@ -11,10 +11,10 @@ router = APIRouter()
 
 @router.get("/", response_model=List[schemas.Transaction])
 def read_transactions(
-        db: Session = Depends(deps.get_db),
-        skip: int = 0,
-        limit: int = 100,
-        current_user: models.User = Depends(deps.get_current_active_user),
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Retrieve transaction data.
@@ -24,28 +24,29 @@ def read_transactions(
         return transaction
 
 
-@router.post("/", response_model=schemas.Transaction)
+@router.post("/{commitment_id}", response_model=schemas.Transaction)
 def create_transaction(
-        *,
-        db: Session = Depends(deps.get_db),
-        item_in: schemas.TransactionCreate,
-        current_user: models.User = Depends(deps.get_current_active_user),
+    *,
+    commitment_id: int,
+    db: Session = Depends(deps.get_db),
+    item_in: schemas.TransactionCreate,
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Create new commitment.
+    Create new transaction.
     """
 
     if current_user:
-        transaction = crud.transaction.create(db=db, obj_in=item_in)
+        transaction = crud.transaction.create(db=db, obj_in=item_in, commitment_id = commitment_id)
         return transaction
 
 
-@router.get("/{commitment_id}/", response_model=List[schemas.Transaction])
+@router.get("/{commitment_id}/", response_model=schemas.Transaction)
 def read_commitment_by_commitment_id(
-        *,
-        commitment_id: int,
-        db: Session = Depends(deps.get_db),
-        current_user: models.User = Depends(deps.get_current_active_user),
+    *,
+    commitment_id: int,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Retrieve Transaction data per commitment ID
@@ -57,10 +58,10 @@ def read_commitment_by_commitment_id(
 
 @router.get("/commitment/{deliverer}/", response_model=List[schemas.Transaction])
 def read_commitment_by_deliverer(
-        *,
-        deliverer: int,
-        db: Session = Depends(deps.get_db),
-        current_user: models.User = Depends(deps.get_current_active_user),
+    *,
+    deliverer: int,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
     Retrieve Transaction data per deliverer

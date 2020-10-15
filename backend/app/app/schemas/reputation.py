@@ -1,21 +1,23 @@
 from typing import Optional
-import datetime
-
+from datetime import datetime
 from pydantic import BaseModel
 
 
 # Shared properties
 class ReputationBase(BaseModel):
     user_id: Optional[int] = None
-    full_name: Optional[str] = None
+    #full_name: Optional[str] = None
     reputation_score: Optional[float] = None
-    created_date:  Optional[str] = None
+    created_date:  Optional[datetime] = None
+
+    class Config:
+        orm_mode = True
 
 
 # Properties to receive on item creation
 class ReputationCreate(ReputationBase):
     user_id: int
-    full_name: str
+    #full_name: str
     reputation_score: float
 
 
@@ -24,19 +26,18 @@ class ReputationUpdate(ReputationBase):
     pass
 
 
-# Properties shared by models stored in DB
-class ReputationInDBBase(ReputationBase):
-    id: int
-
-    class Config:
-        orm_mode = True
+# # Properties shared by models stored in DB
+# class ReputationInDBBase(ReputationBase):
+#     id: int
+#
+#
 
 
 # Properties to return to client
-class Reputation(ReputationInDBBase):
+class Reputation(ReputationBase):
     pass
 
 
 # Properties properties stored in DB
-class ReputationInDB(ReputationInDBBase):
+class ReputationInDB(ReputationBase):
     pass

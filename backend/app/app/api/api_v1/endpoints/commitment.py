@@ -40,7 +40,7 @@ def create_commitment(
         return commitment
 
 
-@router.get("/{deliverer}", response_model=Optional[schemas.Commitment])
+@router.get("/user/{deliverer}", response_model=List[schemas.Commitment])
 def read_commitment_by_deliverer(
     deliverer: int,
     db: Session = Depends(deps.get_db),
@@ -52,6 +52,22 @@ def read_commitment_by_deliverer(
     if current_user:
         commitment = crud.commitment.get_commitment_by_deliverer(db=db, deliverer=deliverer)
         return commitment
+
+
+
+@router.get("/{commitment_id}", response_model=schemas.Commitment)
+def read_commitment_by_id(
+    commitment_id: int,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Retrieve commitment by id
+    """
+    if current_user:
+        commitment = crud.transaction.get_commitment_by_id(db=db, commitment_id=commitment_id)
+        return commitment
+
 
 
 @router.get("/reputation/test", response_model=List[schemas.Rep])

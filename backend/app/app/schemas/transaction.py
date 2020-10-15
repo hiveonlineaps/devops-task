@@ -7,7 +7,6 @@ from pydantic import BaseModel
 # Shared properties
 class TransactionBase(BaseModel):
     deliverer: int
-    commitment_id: int
     delivery_value: float
     delivery_date: date
 
@@ -15,7 +14,6 @@ class TransactionBase(BaseModel):
 # Properties to receive on item creation
 class TransactionCreate(TransactionBase):
     deliverer: int
-    commitment_id: int
     delivery_value: float
     delivery_date: date
 
@@ -23,7 +21,6 @@ class TransactionCreate(TransactionBase):
 # Properties to receive on item update
 class TransactionUpdate(TransactionBase):
     deliverer: int
-    commitment_id: int
     delivery_value: float
     delivery_date: date
 
@@ -31,6 +28,7 @@ class TransactionUpdate(TransactionBase):
 # Properties shared by models stored in DB
 class TransactionInDBBase(TransactionBase):
     id: int
+    commitment_id: int
 
     class Config:
         orm_mode = True

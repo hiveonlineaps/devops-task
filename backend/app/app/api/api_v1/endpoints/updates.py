@@ -22,10 +22,10 @@ def read_users(
     Retrieve users from Identity.
     """
     api = url+'/api/v1/users/?skip='+skip+'&limit='+limit
-    resp = session.get(
+    resp = session.post(
                         api,  
                         auth = HTTPDigestAuth(auth["user"], auth["password"]), 
                         headers = {"Authorization": token}
                     )
 
-    return (resp.json())
+    return (resp.json()) #Still returns Not Authenticated

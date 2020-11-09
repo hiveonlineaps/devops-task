@@ -13,6 +13,7 @@ class User(Base):
     hashed_password = Column(String, nullable=True)
     is_active = Column(Boolean(), default=False)
     is_superuser = Column(Boolean(), default=False)
+    hiveonline_id = Column(String, unique=True, index=True)
 
 
 class CommitmentCategory(Base):

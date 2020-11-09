@@ -9,12 +9,15 @@ class UserBase(BaseModel):
     is_active: Optional[bool] = False
     is_superuser: bool = False
     full_name: Optional[str] = None
+    hiveonline_id: Optional[str] = None
 
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     email: EmailStr
     password: str
+    hiveonline_id: str
+    full_name: str
 
 
 # Properties to receive via API on update

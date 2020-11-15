@@ -10,6 +10,9 @@ from app.api import deps
 from app.core.config import settings
 from app.utils import send_new_account_email
 
+import os
+from app.core.settings import (session, url)
+
 router = APIRouter()
 
 
@@ -151,3 +154,39 @@ def update_user(
         )
     user = crud.user.update(db, db_obj=user, obj_in=user_in)
     return user
+
+
+## Update from Identity Service
+
+token = "Bearer "+os.environ.get("BEARER_TOKEN", "Some Token")
+
+@router.get("/updates", response_model=schemas.Msg)
+def get_users(
+    db: Session = Depends(deps.get_db),
+    skip: int = 0,
+    limit: int = 100,
+) -> Any:
+    """
+    Retrieve users from Identity and Write to the Reputation Db.
+    """
+    api = url+'users/?skip='+str(skip)+'&limit='+str(limit)
+    resp = session.get(
+                        api,  
+                        headers = {"Authorization": token}
+                    )
+    count = 0
+    for user in resp.json():
+        user_ = crud.user.get_by_email(db, email=user["email"])
+        if not user_:
+            user_in = schemas.UserCreate(
+                email=user["email"],
+                full_name=user["full_name"],
+                password="",
+                hiveonline_id=user["hiveonline_id"],
+                is_superuser=False,
+                is_active=False
+            )
+            user = crud.user.create(db, obj_in=user_in)
+            count += 1
+    
+    return {"msg": "{} new users added to users table!".format(count)}

@@ -10,15 +10,12 @@ adapter = HTTPAdapter(max_retries=retry)
 session.mount('http://', adapter)
 session.mount('https://', adapter)
 
-headers = {"accept": "application/json",
-            "Authorization": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2MDUyMzI2NjQsInN1YiI6IjEifQ.PrLfAr2v2hu5jb_FFqRUFkq9-flYx6ydYtdXOcWlTfs"
-        }
 env = os.environ.get("IDENTITY_DOMAIN__ENV")
 
 url = ""
 
 if env == "development":
-    url = "https://"+os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH")+'/api/v1/'
+    url = "https://"+os.environ.get("IDENTITY_DOMAIN_DEV_AUTH")+'/api/v1/'
 if env == "staging":
     url = "https://"+os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH")+'/api/v1/'
 if env == "uat":
@@ -31,7 +28,6 @@ payload = {
         "username": os.environ.get("IDENTITY_USER"),
         "password": os.environ.get("IDENTITY_USER_PASSWORD")
       }
-
 print (os.environ.get("IDENTITY_USER"))
 token_url = url+'login/access-token'
 resp = session.post(token_url, payload)

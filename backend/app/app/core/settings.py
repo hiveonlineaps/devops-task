@@ -15,7 +15,7 @@ env = os.environ.get("IDENTITY_DOMAIN__ENV")
 url = ""
 
 if env == "development":
-    url = "https://"+os.environ.get("IDENTITY_DOMAIN_DEV_AUTH")+'/api/v1/'
+    url = "https://"+os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH")+'/api/v1/'
 if env == "staging":
     url = "https://"+os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH")+'/api/v1/'
 if env == "uat":

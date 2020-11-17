@@ -1,7 +1,11 @@
 import secrets
 from typing import Any, Dict, List, Optional, Union
+from fastapi import HTTPException
+
 
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
+import os
+import requests
 
 
 class Settings(BaseSettings):
@@ -44,7 +48,7 @@ class Settings(BaseSettings):
         if isinstance(v, str):
             return v
         return PostgresDsn.build(
-            scheme="postgresql",
+            scheme="postgresql", 
             user=values.get("POSTGRES_USER"),
             password=values.get("POSTGRES_PASSWORD"),
             host=values.get("POSTGRES_SERVER"),
@@ -81,6 +85,33 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
     USERS_OPEN_REGISTRATION: bool = False
+
+    def get_access_token(self, url):
+        payload = {
+            "grant_type": "password",
+            "username": os.environ.get("IDENTITY_USER"),
+            "password": os.environ.get("IDENTITY_USER_PASSWORD")
+        }
+        res = requests.post(url, payload)
+
+        token = res.json()["access_token"]
+
+        return token
+
+    def get_env(self, env):
+        if env == "development":
+            url = "https://" + os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH") + '/api/v1/'
+        elif env == "staging":
+            url = "https://" + os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH") + '/api/v1/'
+        elif env == "uat":
+            url = "https://" + os.environ.get("IDENTITY_DOMAIN_UAT_AUTH") + '/api/v1/'
+        elif env == "production":
+            url = "https://" + os.environ.get("IDENTITY_DOMAIN_PROD_AUTH") + '/api/v1/'
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail="Environment not found")
+        return url
 
     class Config:
         case_sensitive = True

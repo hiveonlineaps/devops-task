@@ -164,15 +164,15 @@ def get_users(
     """
     Populate users from identity into reputation
     """
-    url = "https://staging.identity-service.hivenetwork.online/api/v1/users/?limit=100"
     environ = os.environ.get("IDENTITY_DOMAIN__ENV")
+    identity_user_endpoint = settings.get_env(env=environ) + 'users/?limit=10000'
     generate_token_url = settings.get_env(env=environ) + 'login/access-token'
 
     headers = {
         'Authorization': 'Bearer ' + settings.get_access_token(url=generate_token_url),
         'Content-Type': 'application/json; charset=utf-8'
     }
-    res = requests.get(url, headers=headers)
+    res = requests.get(identity_user_endpoint, headers=headers)
     data = res.json()
 
     count = 0

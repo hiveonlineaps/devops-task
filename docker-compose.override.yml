@@ -3,8 +3,8 @@ services:
 
   proxy:
     ports:
-      - "80:80"
-      - "8090:8080"
+      - "81:80"
+      - "8091:8080"
     command:
       # Enable Docker in Traefik, so that it reads labels from Docker services
       - --providers.docker
@@ -30,15 +30,15 @@ services:
 
   pgadmin:
     ports:
-      - "5050:5050"
+      - "5051:5050"
 
   flower:
     ports:
-      - "5555:5555"
+      - "5557:5555"
 
   backend:
     ports:
-      - "8888:8888"
+      - "8887:8888"
     volumes:
       - ./backend/app:/app
     environment:

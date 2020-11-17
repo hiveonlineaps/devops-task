@@ -11,7 +11,7 @@ class User(Base):
     full_name = Column(String, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=True)
-    is_active = Column(Boolean(), default=False)
+    is_active = Column(Boolean())
     is_superuser = Column(Boolean(), default=False)
     hiveonline_id = Column(String, unique=True, index=True)
 

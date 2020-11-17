@@ -6,7 +6,7 @@ from pydantic import BaseModel, EmailStr
 # Shared properties
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
-    is_active: Optional[bool] = False
+    is_active: Optional[bool] = None
     is_superuser: bool = False
     full_name: Optional[str] = None
     hiveonline_id: Optional[str] = None
@@ -16,8 +16,6 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     email: EmailStr
     password: str
-    hiveonline_id: str
-    full_name: str
 
 
 # Properties to receive via API on update

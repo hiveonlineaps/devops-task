@@ -9,9 +9,8 @@ from app import crud, models, schemas
 from app.api import deps
 from app.core.config import settings
 from app.utils import send_new_account_email
-
+import requests
 import os
-from app.core.settings import (session, url)
 
 router = APIRouter()
 
@@ -156,27 +155,29 @@ def update_user(
     return user
 
 
-## Update from Identity Service
-
-token = "Bearer "+os.environ.get("BEARER_TOKEN", "Some Token")
-
-@router.get("/updates", response_model=schemas.Msg)
+@router.post("/identity/updates", response_model=schemas.Msg)
 def get_users(
     db: Session = Depends(deps.get_db),
-    skip: int = 0,
-    limit: int = 100,
+    current_user: models.User = Depends(deps.get_current_active_superuser),
+
 ) -> Any:
     """
-    Retrieve users from Identity and Write to the Reputation Db.
+    Populate users from identity into reputation
     """
-    api = url+'users/?skip='+str(skip)+'&limit='+str(limit)
-    resp = session.get(
-                        api,  
-                        headers = {"Authorization": token}
-                    )
+    url = "https://staging.identity-service.hivenetwork.online/api/v1/users/?limit=100"
+    environ = os.environ.get("IDENTITY_DOMAIN__ENV")
+    generate_token_url = settings.get_env(env=environ) + 'login/access-token'
+
+    headers = {
+        'Authorization': 'Bearer ' + settings.get_access_token(url=generate_token_url),
+        'Content-Type': 'application/json; charset=utf-8'
+    }
+    res = requests.get(url, headers=headers)
+    data = res.json()
+
     count = 0
-    for user in resp.json():
-        user_ = crud.user.get_by_email(db, email=user["email"])
+    for user in data:
+        user_ = crud.user.get_by_email(db=db, email=user["email"])
         if not user_:
             user_in = schemas.UserCreate(
                 email=user["email"],

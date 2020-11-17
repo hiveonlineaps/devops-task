@@ -11,7 +11,7 @@ from app.models.database import Reputation, User, Commitment, Transaction, Commi
 from app.schemas.reputation import ReputationCreate, ReputationInDB, ReputationUpdate
 
 
-def get_reputation(db: Session, skip: int = 0, limit: int = 100) ->List[Reputation]:
+def get_reputation(db: Session, skip: int = 0, limit: int = 100) -> List[Reputation]:
     return db.query(Reputation).offset(skip).limit(limit).all()
 
 
@@ -24,7 +24,7 @@ def get_reputations_by_user(db: Session, user_id: int, skip: int = 0, limit: int
 
 
 def create(
-     db: Session, *, obj_in: ReputationCreate
+        db: Session, *, obj_in: ReputationCreate
 ) -> Reputation:
     obj_in_data = jsonable_encoder(obj_in)
     db_obj = Reputation(**obj_in_data)
@@ -41,6 +41,7 @@ def get_reputation_by_deliverer(self, db: Session, *, deliverer: int) -> List[Re
             .all()
     )
 
+
 def score_commitment(committed, delivered):
     if committed > int(0 if delivered is None else delivered):
         score = round((1 - abs(round(((int(0 if delivered is None else delivered) - committed) / committed), 4))), 2)
@@ -52,20 +53,27 @@ def score_commitment(committed, delivered):
             score = 1.0
         return score
 
+
 def get_category_weight(db: Session, category_id) -> CommitmentCategory:
-    return db.query(CommitmentCategory.weight).\
-        filter(CommitmentCategory.id == category_id).\
+    return db.query(CommitmentCategory.weight). \
+        filter(CommitmentCategory.id == category_id). \
         first()
+
 
 def get_user_commitment_ids(db: Session) -> List[Commitment]:
     return db.query(Commitment.deliverer, Commitment.category_id).all()
 
-def compute_reputation(db: Session):
-    results = db.query(Transaction.commitment_id, Commitment.deliverer, Commitment.category_id, Commitment.commitment_value,
-                       func.sum(Transaction.delivery_value)).join(Transaction, Commitment.deliverer == Transaction.deliverer, isouter=True).\
-                       group_by(Transaction.commitment_id, Commitment.category_id, Commitment.deliverer, Commitment.commitment_value).all()
 
-    cols = ['commitment_id','deliverer', 'category_id', 'commitment_value', 'delivery_value']
+def compute_reputation(db: Session):
+    results = db.query(Transaction.commitment_id, Commitment.deliverer, Commitment.category_id,
+                       Commitment.commitment_value,
+                       func.sum(Transaction.delivery_value)).join(Transaction,
+                                                                  Commitment.deliverer == Transaction.deliverer,
+                                                                  isouter=True). \
+        group_by(Transaction.commitment_id, Commitment.category_id, Commitment.deliverer,
+                 Commitment.commitment_value).all()
+
+    cols = ['commitment_id', 'deliverer', 'category_id', 'commitment_value', 'delivery_value']
     results = [dict(zip(cols, l)) for l in results]
 
     for result in results:
@@ -88,23 +96,24 @@ def compute_reputation(db: Session):
         counters.append(d['deliverer'])
     freq = dict(collections.Counter(counters))
 
-    both = [] # have both loan and production plans
-    single = [] # have either of the plans
+    both = []  # have both loan and production plans
+    single = []  # have either of the plans
 
-    for k,v in freq.items():
+    for k, v in freq.items():
         if v > 1:
             both.append(k)
         else:
             single.append(k)
 
-    keys_to_remove = ['category_id', 'score'] # not needed for the final output
+    keys_to_remove = ['category_id', 'score']  # not needed for the final output
 
     counter = collections.Counter()
 
     for i in result:
         if i['deliverer'] in both:
             # multiply the score with weight
-            i['final_score'] = i['score'] * get_category_weight(db=db, category_id=i['category_id'])[0] # returned as a tuple
+            i['final_score'] = i['score'] * get_category_weight(db=db, category_id=i['category_id'])[
+                0]  # returned as a tuple
         else:
             i['final_score'] = i['score']
         for k in keys_to_remove:
@@ -121,15 +130,7 @@ def compute_reputation(db: Session):
         data = {
             'user_id': key,
             'reputation_score': value,
-            'created_date':datetime.datetime.now()
+            'created_date': datetime.datetime.now()
 
         }
         create(db=db, obj_in=data)
-
-
-
-
-
-
-
-

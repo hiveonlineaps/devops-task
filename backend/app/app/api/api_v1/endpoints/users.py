@@ -177,7 +177,7 @@ def get_users(
 
     count = 0
     for user in data:
-        user_ = crud.user.get_by_email(db=db, email=user["email"])
+        user_ = crud.user.get_emails(db=db, email=user["email"])
         if not user_:
             user_in = schemas.UserCreate(
                 email=user["email"],

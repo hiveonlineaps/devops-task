@@ -3,6 +3,7 @@ from .commitmentcategory import category
 from .commitment import commitment
 from .reputation import *
 from .transaction import transaction
+from .membership import membership
 
 # For a new basic set of CRUD operations you could just do
 

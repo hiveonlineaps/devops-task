@@ -182,6 +182,7 @@ def get_users(
             user_in = schemas.UserCreate(
                 email=user["email"],
                 full_name=user["full_name"],
+                identity_user_id=user["id"],
                 password="",
                 hiveonline_id=user["hiveonline_id"],
                 is_superuser=False,

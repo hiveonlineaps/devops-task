@@ -9,6 +9,7 @@ class UserBase(BaseModel):
     is_active: Optional[bool] = None
     is_superuser: bool = False
     full_name: Optional[str] = None
+    identity_user_id: Optional[int] = None
     hiveonline_id: Optional[str] = None
 
 

@@ -25,13 +25,13 @@ def get_reputations_by_user(db: Session, user_id: int, skip: int = 0, limit: int
 
 def create(
         db: Session, *, obj_in: ReputationCreate
-) -> Reputation:
-    obj_in_data = jsonable_encoder(obj_in)
-    db_obj = Reputation(**obj_in_data)
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
-    return db_obj
+    ) -> Reputation:
+        obj_in_data = jsonable_encoder(obj_in)
+        db_obj = Reputation(**obj_in_data)
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
 
 
 def get_reputation_by_deliverer(self, db: Session, *, deliverer: int) -> List[Reputation]:
@@ -67,8 +67,7 @@ def get_user_commitment_ids(db: Session) -> List[Commitment]:
 def compute_reputation(db: Session):
     results = db.query(Transaction.commitment_id, Commitment.deliverer, Commitment.category_id,
                        Commitment.commitment_value,
-                       func.sum(Transaction.delivery_value)).join(Transaction,
-                                                                  Commitment.deliverer == Transaction.deliverer,
+                       func.sum(Transaction.delivery_value)).join(Transaction, Commitment.deliverer == Transaction.deliverer,
                                                                   isouter=True). \
         group_by(Transaction.commitment_id, Commitment.category_id, Commitment.deliverer,
                  Commitment.commitment_value).all()
@@ -112,8 +111,7 @@ def compute_reputation(db: Session):
     for i in result:
         if i['deliverer'] in both:
             # multiply the score with weight
-            i['final_score'] = i['score'] * get_category_weight(db=db, category_id=i['category_id'])[
-                0]  # returned as a tuple
+            i['final_score'] = i['score'] * get_category_weight(db=db, category_id=i['category_id'])[0]  # returned as a tuple
         else:
             i['final_score'] = i['score']
         for k in keys_to_remove:

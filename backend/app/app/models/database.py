@@ -34,6 +34,7 @@ class Commitment(Base):
     id = Column(Integer, primary_key=True, index=True)
     commitment_value = Column(Float)
     category_id = Column(Integer, ForeignKey(CommitmentCategory.id))
+    plan_id = Column(Integer, unique=True, index=True)
     description = Column(Text)
     delivery_date = Column(Date)
     deliverer = Column(Integer, ForeignKey(User.id))

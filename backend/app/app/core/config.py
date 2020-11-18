@@ -92,7 +92,7 @@ class Settings(BaseSettings):
             "username": os.environ.get("IDENTITY_USER"),
             "password": os.environ.get("IDENTITY_USER_PASSWORD")
         }
-        res = requests.post(url, payload)
+        res = requests.post(url, payload, verify=False)
 
         token = res.json()["access_token"]
 

@@ -44,6 +44,7 @@ class Commitment(Base):
 
 class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
+    plan_id = Column(Integer, ForeignKey(Commitment.plan_id))
     commitment_id = Column(Integer, ForeignKey(Commitment.id))
     delivery_value = Column(Float)
     delivery_date = Column(Date)

@@ -71,7 +71,7 @@ def read_commitment_by_id(
         return commitment
 
 
-@router.post("/identity/updates", response_model=schemas.Msg)
+@router.post("/estimate/updates", response_model=schemas.Msg)
 def get_commitment_from_identity(
         db: Session = Depends(deps.get_db),
         current_user: models.User = Depends(deps.get_current_active_superuser),
@@ -81,7 +81,7 @@ def get_commitment_from_identity(
     Populate users from identity into reputation
     """
     environ = os.environ.get("IDENTITY_DOMAIN__ENV")
-    identity_commitment_endpoint = settings.get_env(env=environ) + 'users/?limit=10000'
+    identity_commitment_endpoint = settings.get_env(env=environ) + 'estimate/commitments/'
     generate_token_url = settings.get_env(env=environ) + 'login/access-token'
 
     headers = {
@@ -92,19 +92,19 @@ def get_commitment_from_identity(
     data = res.json()
 
     count = 0
-    for user in data:
-        user_ = crud.user.get_emails(db=db, email=user["email"])
-        if not user_:
-            user_in = schemas.UserCreate(
-                email=user["email"],
-                full_name=user["full_name"],
-                identity_user_id=user["id"],
-                password="",
-                hiveonline_id=user["hiveonline_id"],
-                is_superuser=False,
-                is_active=False
+
+    for member in data:
+        commitment = crud.commitment.get_commitment_by_plan_id(db=db, plan_id=member['plan_id'])
+        if not commitment:
+            commitment_in = schemas.CommitmentCreate(
+                category_id=1,
+                commitment_value=member['quantity'] * member['price'],
+                delivery_date=member['delivery_date'],
+                deliverer=member['member_id'],
+                reporter=member['creator_id'],
+                description=""
             )
-            user = crud.user.create(db, obj_in=user_in)
+            user = crud.commitment.create(db, obj_in=commitment_in)
             count += 1
 
-    return {"msg": "{} new users added to users table!".format(count)}
+    return {"msg": "{} new records added to commitments table!".format(count)}

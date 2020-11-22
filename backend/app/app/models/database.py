@@ -37,8 +37,8 @@ class Commitment(Base):
     plan_id = Column(Integer, unique=True, index=True)
     description = Column(Text)
     delivery_date = Column(Date)
-    deliverer = Column(Integer, ForeignKey(User.id))
-    reporter = Column(Integer, ForeignKey(User.id))
+    deliverer = Column(Integer, ForeignKey(User.identity_user_id))
+    reporter = Column(Integer, ForeignKey(User.identity_user_id))
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
 
 
@@ -48,11 +48,11 @@ class Transaction(Base):
     commitment_id = Column(Integer, ForeignKey(Commitment.id))
     delivery_value = Column(Float)
     delivery_date = Column(Date)
-    deliverer = Column(Integer, ForeignKey(User.id))  # user id from identity service
+    deliverer = Column(Integer, ForeignKey(User.identity_user_id))  # user id from identity service
 
 
 class Reputation(Base):
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey(User.id))  # user id from identity service
+    user_id = Column(Integer, ForeignKey(User.identity_user_id))  # user id from identity service
     reputation_score = Column(Float)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)

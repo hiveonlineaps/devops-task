@@ -98,6 +98,7 @@ def get_commitment_from_identity(
         if not commitment:
             commitment_in = schemas.CommitmentCreate(
                 category_id=1,
+                plan_id = member['plan_id'],
                 commitment_value=member['quantity'] * member['price'],
                 delivery_date=member['delivery_date'],
                 deliverer=member['member_id'],

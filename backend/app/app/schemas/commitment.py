@@ -8,6 +8,7 @@ from pydantic import BaseModel
 # Shared properties
 class CommitmentBase(BaseModel):
     category_id: int = None
+    plan_id: int = None
     commitment_value: float = None
     description: Optional[str] = None
     delivery_date: date = None
@@ -18,6 +19,7 @@ class CommitmentBase(BaseModel):
 # Properties to receive on item creation
 class CommitmentCreate(CommitmentBase):
     category_id: int
+    plan_id: int
     commitment_value: float
     description: str
     delivery_date: date

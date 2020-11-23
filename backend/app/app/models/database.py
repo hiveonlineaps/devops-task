@@ -45,10 +45,9 @@ class Commitment(Base):
 class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     plan_id = Column(Integer, ForeignKey(Commitment.plan_id))
-    commitment_id = Column(Integer, ForeignKey(Commitment.id))
     delivery_value = Column(Float)
     delivery_date = Column(Date)
-    deliverer = Column(Integer, ForeignKey(User.identity_user_id))  # user id from identity service
+    created_at=Column(DateTime, default=datetime.datetime.utcnow)
 
 
 class Reputation(Base):

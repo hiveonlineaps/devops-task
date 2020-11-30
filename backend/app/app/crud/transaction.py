@@ -2,7 +2,6 @@ from typing import List
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from app.crud.base import CRUDBase
 from app.models.database import Transaction, Commitment
@@ -19,7 +18,7 @@ class CRUDItem(CRUDBase[Transaction, TransactionCreate, TransactionUpdate]):
 
     def create(self, db: Session, *, obj_in: TransactionCreate, commitment_id: int) -> Transaction:
         obj_in_data = jsonable_encoder(obj_in)
-        commitment = self.get_commitment_by_id(db = db, commitment_id=commitment_id)
+        commitment = self.get_commitment_by_id(db=db, commitment_id=commitment_id)
         obj_in_data["commitment_id"] = commitment.id
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
@@ -27,10 +26,12 @@ class CRUDItem(CRUDBase[Transaction, TransactionCreate, TransactionUpdate]):
         db.refresh(db_obj)
         return db_obj
 
+    def get_max_tx_date(self, db: Session):
+        return (
+            db.query(Transaction.created_at).first()
+        )
 
-    def get_multi(
-            self, db: Session, *, skip: int = 0, limit: int = 100
-    ) -> List[Transaction]:
+    def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[Transaction]:
         return (
             db.query(self.model)
                 .offset(skip)

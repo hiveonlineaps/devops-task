@@ -1,26 +1,25 @@
-from typing import Optional
 from datetime import date
-
 from pydantic import BaseModel
 
 
 # Shared properties
 class TransactionBase(BaseModel):
-    deliverer: int
     delivery_value: float
     delivery_date: date
+    plan_id: int
+    delivery_id: int
 
 
 # Properties to receive on item creation
 class TransactionCreate(TransactionBase):
-    deliverer: int
     delivery_value: float
     delivery_date: date
+    plan_id: int
+    delivery_id: int
 
 
 # Properties to receive on item update
 class TransactionUpdate(TransactionBase):
-    deliverer: int
     delivery_value: float
     delivery_date: date
 
@@ -28,7 +27,6 @@ class TransactionUpdate(TransactionBase):
 # Properties shared by models stored in DB
 class TransactionInDBBase(TransactionBase):
     id: int
-    commitment_id: int
 
     class Config:
         orm_mode = True

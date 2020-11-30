@@ -1,8 +1,7 @@
-from typing import List
+from typing import List, Optional
 
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
-from typing import Optional
 
 from app.crud.base import CRUDBase
 from app.models.database import Transaction, Commitment
@@ -17,20 +16,15 @@ class CRUDItem(CRUDBase[Transaction, TransactionCreate, TransactionUpdate]):
                 .first()
         )
 
-    def create(self, db: Session, *, obj_in: TransactionCreate, commitment_id: int) -> Transaction:
+    def create(self, db: Session, *, obj_in: TransactionCreate) -> Transaction:
         obj_in_data = jsonable_encoder(obj_in)
-        commitment = self.get_commitment_by_id(db = db, commitment_id=commitment_id)
-        obj_in_data["commitment_id"] = commitment.id
         db_obj = self.model(**obj_in_data)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
         return db_obj
 
-
-    def get_multi(
-            self, db: Session, *, skip: int = 0, limit: int = 100
-    ) -> List[Transaction]:
+    def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[Transaction]:
         return (
             db.query(self.model)
                 .offset(skip)
@@ -43,6 +37,13 @@ class CRUDItem(CRUDBase[Transaction, TransactionCreate, TransactionUpdate]):
             db.query(self.model)
                 .filter(Transaction.commitment_id == commitment_id)
                 .all()
+        )
+
+    def get_transaction_by_delivery_id(self, db: Session, *, delivery_id: int) -> Optional[Transaction]:
+        return (
+            db.query(self.model)
+                .filter(Transaction.delivery_id == delivery_id)
+                .first()
         )
 
     def get_transactions_by_deliverer(self, db: Session, *, deliverer: int) -> List[Transaction]:

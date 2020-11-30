@@ -34,7 +34,7 @@ class Commitment(Base):
     id = Column(Integer, primary_key=True, index=True)
     commitment_value = Column(Float)
     category_id = Column(Integer, ForeignKey(CommitmentCategory.id))
-    plan_id = Column(Integer, unique=True, index=True)
+    plan_id = Column(Integer, index=True)
     description = Column(Text)
     delivery_date = Column(Date)
     deliverer = Column(Integer, ForeignKey(User.identity_user_id))
@@ -44,11 +44,11 @@ class Commitment(Base):
 
 class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
-    plan_id = Column(Integer, ForeignKey(Commitment.plan_id))
-    commitment_id = Column(Integer, ForeignKey(Commitment.id))
+    plan_id = Column(Integer, index=True)
+    delivery_id = Column(Integer, index=True)
     delivery_value = Column(Float)
     delivery_date = Column(Date)
-    deliverer = Column(Integer, ForeignKey(User.identity_user_id))  # user id from identity service
+    created_at=Column(DateTime, default=datetime.datetime.utcnow)
 
 
 class Reputation(Base):

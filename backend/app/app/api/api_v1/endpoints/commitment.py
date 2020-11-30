@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -80,7 +80,7 @@ def get_commitment_from_identity(
     """
     Populate users from identity into reputation
     """
-    environ = os.environ.get("IDENTITY_DOMAIN__ENV")
+    environ = os.environ.get("IDENTITY_DOMAIN_ENV")
     identity_commitment_endpoint = settings.get_env(env=environ) + 'estimate/commitments/'
     generate_token_url = settings.get_env(env=environ) + 'login/access-token'
 
@@ -105,7 +105,7 @@ def get_commitment_from_identity(
                 reporter=member['creator_id'],
                 description=""
             )
-            user = crud.commitment.create(db, obj_in=commitment_in)
+            member = crud.commitment.create(db, obj_in=commitment_in)
             count += 1
 
     return {"msg": "{} new records added to commitments table!".format(count)}

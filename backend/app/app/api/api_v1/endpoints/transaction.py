@@ -85,7 +85,7 @@ def get_delivery_from_identity(
     """
     Populate delivery data from identity
     """
-    environ = os.environ.get("IDENTITY_DOMAIN__ENV")
+    environ = os.environ.get("IDENTITY_DOMAIN_ENV")
     identity_delivery_endpoint = settings.get_env(env=environ) + 'delivery/?limit=10000'
     generate_token_url = settings.get_env(env=environ) + 'login/access-token'
 
@@ -97,38 +97,16 @@ def get_delivery_from_identity(
     data = res.json()
 
     count = 0
-
-    time_diff = (datetime.datetime.now() - datetime.timedelta(minutes=15)).strftime("%Y-%m-%d%H:%M:%S.%f")
-    print(time_diff)
-    delivery_date = crud.transaction.get_max_tx_date(db=db)
-    print(time_diff)
-    if delivery_date is None:
-        for member in data:
-            # print(">>>>>>>>>>>>>>>>", member)
-
+    for member in data:
+        delivery = crud.transaction.get_transaction_by_delivery_id(db=db, delivery_id=member["id"])
+        if not delivery:
             delivery_in = schemas.TransactionCreate(
                 plan_id=member['plan_id'],
+                delivery_id=member['id'],
                 delivery_value=member['quantity'] * member['px_kg'],
                 delivery_date=member['delivery_date'],
             )
-            user = crud.transaction.create(db, obj_in=delivery_in)
+            member = crud.transaction.create(db, obj_in=delivery_in)
             count += 1
-
-    else:
-        for member in data:
-            print(member["created_at"])
-            if time_diff > member["created_at"]:
-                print(">>>>>>>>>>>>>>>>", member)
-
-    # delivery_date[0] > datetime.datetime.now():
-     #    print("TRUES")
-     #    for member in data:
-     #        delivery_in = schemas.TransactionCreate(
-     #            plan_id=member['plan_id'],
-     #            delivery_value=member['quantity'] * member['px_kg'],
-     #            delivery_date=member['delivery_date'],
-     #        )
-     #        user = crud.transaction.create(db, obj_in=delivery_in)
-     #        count += 1
 
     return {"msg": "{} new records added to transactions table!".format(count)}

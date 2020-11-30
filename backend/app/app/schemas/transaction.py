@@ -7,6 +7,7 @@ class TransactionBase(BaseModel):
     delivery_value: float
     delivery_date: date
     plan_id: int
+    delivery_id: int
 
 
 # Properties to receive on item creation
@@ -14,6 +15,7 @@ class TransactionCreate(TransactionBase):
     delivery_value: float
     delivery_date: date
     plan_id: int
+    delivery_id: int
 
 
 # Properties to receive on item update

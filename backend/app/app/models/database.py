@@ -45,6 +45,7 @@ class Commitment(Base):
 class Transaction(Base):
     id = Column(Integer, primary_key=True, index=True)
     plan_id = Column(Integer, index=True)
+    delivery_id = Column(Integer, index=True)
     delivery_value = Column(Float)
     delivery_date = Column(Date)
     created_at=Column(DateTime, default=datetime.datetime.utcnow)

@@ -24,11 +24,6 @@ class CRUDItem(CRUDBase[Transaction, TransactionCreate, TransactionUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def get_max_tx_date(self, db: Session):
-        return (
-            db.query(Transaction.created_at).first()
-        )
-
     def get_multi(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[Transaction]:
         return (
             db.query(self.model)
@@ -44,13 +39,12 @@ class CRUDItem(CRUDBase[Transaction, TransactionCreate, TransactionUpdate]):
                 .all()
         )
 
-    def get_transaction_by_plan_id(self, db: Session, *, plan_id: int) -> Optional[Transaction]:
+    def get_transaction_by_delivery_id(self, db: Session, *, delivery_id: int) -> Optional[Transaction]:
         return (
             db.query(self.model)
-                .filter(Transaction.plan_id == plan_id)
+                .filter(Transaction.delivery_id == delivery_id)
                 .first()
         )
-
 
     def get_transactions_by_deliverer(self, db: Session, *, deliverer: int) -> List[Transaction]:
         return (

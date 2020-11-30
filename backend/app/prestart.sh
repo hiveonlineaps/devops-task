@@ -10,4 +10,4 @@ alembic upgrade head
 python /app/app/initial_data.py
 
 # insert commitment category
-python /app/app/commitcategory.py
+python /app/app/commitcategory_pre_start.py

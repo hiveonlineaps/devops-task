@@ -21,7 +21,7 @@ def get_membership_from_identity(
     """
     Populate users from identity into reputation
     """
-    environ = os.environ.get("IDENTITY_DOMAIN__ENV")
+    environ = os.environ.get("IDENTITY_DOMAIN_ENV")
     identity_membership_endpoint = settings.get_env(env=environ) + 'membership/?limit=10000'
     generate_token_url = settings.get_env(env=environ) + 'login/access-token'
 

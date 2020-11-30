@@ -165,7 +165,6 @@ def get_users(
     Populate users from identity into reputation
     """
     environ = os.environ.get("IDENTITY_DOMAIN_ENV")
-    print(">>>>>>>>>>", environ)
     identity_user_endpoint = settings.get_env(env=environ) + 'users/?limit=10000'
     generate_token_url = settings.get_env(env=environ) + 'login/access-token'
 

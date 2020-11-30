@@ -15,12 +15,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def get_emails(self, db: Session, *, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).all()
 
+    def get_by_identity_user_id(self, db: Session, *, identity_user_id: int) -> Optional[User]:
+        return db.query(User).filter(User.identity_user_id == identity_user_id).all()
+
     def create(self, db: Session, *, obj_in: UserCreate) -> User:
         db_obj = User(
             email=obj_in.email,
             hashed_password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
             is_superuser=obj_in.is_superuser,
+            identity_user_id=obj_in.identity_user_id,
             is_active=obj_in.is_active,
             hiveonline_id=obj_in.hiveonline_id
         )

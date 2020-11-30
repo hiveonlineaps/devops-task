@@ -1,12 +1,11 @@
-from typing import List
+from typing import List, Any
 
 from fastapi import Depends, APIRouter, HTTPException
 from sqlalchemy.orm import Session
 from app.api import deps
+from app import crud, models, schemas
 
 router = APIRouter()
-
-from app import crud, models, schemas #, reputation
 
 
 @router.get("/", response_model=List[schemas.Reputation])
@@ -42,7 +41,6 @@ def get_reputation_by_user_id(
                 detail="No reputation found for user"
             )
         return db_reputation
-
 
 
 @router.get("/reputation/history/{deliverer}", response_model=List[schemas.Reputation])

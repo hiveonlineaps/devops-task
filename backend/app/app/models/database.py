@@ -8,6 +8,7 @@ from app.db.base_class import Base
 
 class User(Base):
     id = Column(Integer, primary_key=True, index=True)
+    identity_user_id = Column(Integer, index=True, unique=True)
     full_name = Column(String, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=True)
@@ -21,6 +22,12 @@ class CommitmentCategory(Base):
     name = Column(String)
     description = Column(Text)
     weight = Column(Float)
+
+
+class Memberships(Base):
+    id = Column(Integer, primary_key=True, index=True)
+    coop_id = Column(Integer, index=True)
+    user_id = Column(Integer, ForeignKey(User.identity_user_id), index=True)
 
 
 class Commitment(Base):

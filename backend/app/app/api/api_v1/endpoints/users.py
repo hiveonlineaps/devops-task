@@ -164,7 +164,7 @@ def get_users(
     """
     Populate users from identity into reputation
     """
-    environ = os.environ.get("IDENTITY_DOMAIN__ENV")
+    environ = os.environ.get("IDENTITY_DOMAIN_ENV")
     identity_user_endpoint = settings.get_env(env=environ) + 'users/?limit=10000'
     generate_token_url = settings.get_env(env=environ) + 'login/access-token'
 
@@ -182,6 +182,7 @@ def get_users(
             user_in = schemas.UserCreate(
                 email=user["email"],
                 full_name=user["full_name"],
+                identity_user_id=user["id"],
                 password="",
                 hiveonline_id=user["hiveonline_id"],
                 is_superuser=False,

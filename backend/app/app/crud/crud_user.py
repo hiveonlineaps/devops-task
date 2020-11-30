@@ -24,9 +24,9 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
             hashed_password=get_password_hash(obj_in.password),
             full_name=obj_in.full_name,
             is_superuser=obj_in.is_superuser,
-            hiveonline_id=obj_in.hiveonline_id,
-            identity_user_id=obj_in.identity_user_id
-
+            identity_user_id=obj_in.identity_user_id,
+            is_active=obj_in.is_active,
+            hiveonline_id=obj_in.hiveonline_id
         )
         db.add(db_obj)
         db.commit()

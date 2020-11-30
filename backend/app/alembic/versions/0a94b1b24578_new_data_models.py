@@ -62,12 +62,6 @@ def upgrade():
     op.drop_index('ix_item_id', table_name='item')
     op.drop_index('ix_item_title', table_name='item')
     op.drop_table('item')
-    op.alter_column('user', 'email',
-               existing_type=sa.VARCHAR(),
-               nullable=False)
-    op.alter_column('user', 'hashed_password',
-               existing_type=sa.VARCHAR(),
-               nullable=False)
     # ### end Alembic commands ###
 
 

@@ -23,9 +23,6 @@ def upgrade():
     op.create_foreign_key(None, 'reputation', 'user', ['user_id'], ['id'])
     op.drop_column('reputation', 'full_name')
     op.create_foreign_key(None, 'transaction', 'user', ['deliverer'], ['id'])
-    op.alter_column('user', 'hashed_password',
-               existing_type=sa.VARCHAR(),
-               nullable=True)
     # ### end Alembic commands ###
 
 

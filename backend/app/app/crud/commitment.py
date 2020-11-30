@@ -29,6 +29,13 @@ class CRUDItem(CRUDBase[Commitment, CommitmentInDB, CommitmentCreate]):
                 .all()
         )
 
+    def get_commitment_by_plan_id(self, db: Session, *, plan_id: int) -> Optional[Commitment]:
+        return (
+            db.query(self.model)
+                .filter(Commitment.plan_id == plan_id)
+                .first()
+        )
+
     def get_commitment_by_deliverer(self, db: Session, *, deliverer: int) -> List[Commitment]:
         return (
             db.query(self.model)
@@ -38,5 +45,3 @@ class CRUDItem(CRUDBase[Commitment, CommitmentInDB, CommitmentCreate]):
 
 
 commitment = CRUDItem(Commitment)
-
-

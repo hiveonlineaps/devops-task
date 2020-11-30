@@ -2,10 +2,17 @@ import secrets
 from typing import Any, Dict, List, Optional, Union
 from fastapi import HTTPException
 
-
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 import os
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
+session = requests.Session()
+retry = Retry(connect=3, backoff_factor=0.5)
+adapter = HTTPAdapter(max_retries=retry)
+session.mount('http://', adapter)
+session.mount('https://', adapter)
 
 
 class Settings(BaseSettings):
@@ -94,8 +101,7 @@ class Settings(BaseSettings):
             "username": os.environ.get("IDENTITY_USER"),
             "password": os.environ.get("IDENTITY_USER_PASSWORD")
         }
-        res = requests.post(url, payload)
-
+        res = session.post(url, payload)
         token = res.json()["access_token"]
 
         return token

@@ -1,7 +1,8 @@
 import os
 import requests
 from typing import Any, List
-from datetime import datetime
+import datetime
+from dateutil import parser
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
@@ -97,28 +98,37 @@ def get_delivery_from_identity(
 
     count = 0
 
-    for member in data:
-        delivery = crud.transaction.get_max_tx_date(db=db)
-        if delivery is None:
-            delivery_in= schemas.TransactionCreate(
+    time_diff = (datetime.datetime.now() - datetime.timedelta(minutes=15)).strftime("%Y-%m-%d%H:%M:%S.%f")
+    print(time_diff)
+    delivery_date = crud.transaction.get_max_tx_date(db=db)
+    print(time_diff)
+    if delivery_date is None:
+        for member in data:
+            # print(">>>>>>>>>>>>>>>>", member)
+
+            delivery_in = schemas.TransactionCreate(
                 plan_id=member['plan_id'],
                 delivery_value=member['quantity'] * member['px_kg'],
                 delivery_date=member['delivery_date'],
             )
-      #  elif delivery < datetime.datetime.now():
+            user = crud.transaction.create(db, obj_in=delivery_in)
+            count += 1
 
-    #     commitment = crud.commitment.get_commitment_by_plan_id(db=db, plan_id=member['plan_id'])
-    #     if commitment:
-    #         commitment_in = schemas.CommitmentCreate(
-    #             category_id=1,
-    #             plan_id=member['plan_id'],
-    #             commitment_value=member['quantity'] * member['price'],
-    #             delivery_date=member['delivery_date'],
-    #             deliverer=member['member_id'],
-    #             reporter=member['creator_id'],
-    #             description=""
-    #         )
-        user = crud.transaction.create(db, obj_in=delivery_in)
-        count += 1
+    else:
+        for member in data:
+            print(member["created_at"])
+            if time_diff > member["created_at"]:
+                print(">>>>>>>>>>>>>>>>", member)
+
+    # delivery_date[0] > datetime.datetime.now():
+     #    print("TRUES")
+     #    for member in data:
+     #        delivery_in = schemas.TransactionCreate(
+     #            plan_id=member['plan_id'],
+     #            delivery_value=member['quantity'] * member['px_kg'],
+     #            delivery_date=member['delivery_date'],
+     #        )
+     #        user = crud.transaction.create(db, obj_in=delivery_in)
+     #        count += 1
 
     return {"msg": "{} new records added to transactions table!".format(count)}

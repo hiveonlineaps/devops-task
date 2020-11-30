@@ -108,7 +108,7 @@ class Settings(BaseSettings):
 
     def get_env(self, env):
         if env == "development":
-            url = "https://" + os.environ.get("IDENTITY_DOMAIN_DEV_AUTH") + '/api/v1/'
+            url = "https://" + os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH") + '/api/v1/'
         elif env == "staging":
             url = "https://" + os.environ.get("IDENTITY_DOMAIN_STAGING_AUTH") + '/api/v1/'
         elif env == "uat":

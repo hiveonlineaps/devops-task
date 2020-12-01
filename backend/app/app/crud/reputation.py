@@ -118,14 +118,13 @@ def get_user_commitment_ids(db: Session) -> List[Commitment]:
 
 def compute_reputation(db: Session):
     results = db.query(Transaction.plan_id, Commitment.deliverer, Commitment.category_id,
-                       Commitment.commitment_value, Memberships.coop_id,
-                       func.sum(Transaction.delivery_value)). \
-        join(Memberships, Commitment.deliverer == Memberships.user_id). \
+                       Commitment.commitment_value, func.sum(Transaction.delivery_value)). \
         join(Transaction, Commitment.plan_id == Transaction.plan_id, isouter=True). \
         group_by(Transaction.plan_id, Commitment.category_id, Commitment.deliverer,
-                 Commitment.commitment_value, Memberships.coop_id).all()
+                 Commitment.commitment_value).all()
 
-    cols = ['plan_id', 'deliverer', 'category_id', 'commitment_value', "coop_id", 'delivery_value']
+    cols = ['plan_id', 'deliverer', 'category_id', 'commitment_value', 'delivery_value']
+
     results = [dict(zip(cols, l)) for l in results]
 
     for result in results:

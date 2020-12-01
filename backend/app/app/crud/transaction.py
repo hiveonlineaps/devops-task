@@ -32,10 +32,10 @@ class CRUDItem(CRUDBase[Transaction, TransactionCreate, TransactionUpdate]):
                 .all()
         )
 
-    def get_transaction_by_commitment_id(self, db: Session, *, commitment_id: int) -> List[Transaction]:
+    def get_transaction_by_plan_id(self, db: Session, *, plan_id: int) -> List[Transaction]:
         return (
             db.query(self.model)
-                .filter(Transaction.commitment_id == commitment_id)
+                .filter(Transaction.plan_id == plan_id)
                 .all()
         )
 

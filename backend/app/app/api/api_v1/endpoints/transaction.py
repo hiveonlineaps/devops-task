@@ -46,21 +46,6 @@ def create_transaction(
         return transaction
 
 
-@router.get("/{commitment_id}/", response_model=schemas.Transaction)
-def read_commitment_by_commitment_id(
-        *,
-        commitment_id: int,
-        db: Session = Depends(deps.get_db),
-        current_user: models.User = Depends(deps.get_current_active_user),
-) -> Any:
-    """
-    Retrieve Transaction data per commitment ID
-    """
-    if current_user:
-        transaction = crud.transaction.get_transaction_by_commitment_id(db, commitment_id=commitment_id)
-        return transaction
-
-
 @router.get("/commitment/{deliverer}/", response_model=List[schemas.Transaction])
 def read_commitment_by_deliverer(
         *,

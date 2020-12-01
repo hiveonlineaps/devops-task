@@ -65,14 +65,13 @@ def get_user_commitment_ids(db: Session) -> List[Commitment]:
 
 
 def compute_reputation(db: Session):
-    results = db.query(Transaction.commitment_id, Commitment.deliverer, Commitment.category_id,
-                       Commitment.commitment_value,
-                       func.sum(Transaction.delivery_value)).join(Transaction, Commitment.deliverer == Transaction.deliverer,
-                                                                  isouter=True). \
-        group_by(Transaction.commitment_id, Commitment.category_id, Commitment.deliverer,
+    results = db.query(Transaction.plan_id, Commitment.deliverer, Commitment.category_id,
+                       Commitment.commitment_value, func.sum(Transaction.delivery_value)). \
+        join(Transaction, Commitment.plan_id == Transaction.plan_id, isouter=True). \
+        group_by(Transaction.plan_id, Commitment.category_id, Commitment.deliverer,
                  Commitment.commitment_value).all()
 
-    cols = ['commitment_id', 'deliverer', 'category_id', 'commitment_value', 'delivery_value']
+    cols = ['plan_id', 'deliverer', 'category_id', 'commitment_value', 'delivery_value']
     results = [dict(zip(cols, l)) for l in results]
 
     for result in results:
@@ -111,7 +110,8 @@ def compute_reputation(db: Session):
     for i in result:
         if i['deliverer'] in both:
             # multiply the score with weight
-            i['final_score'] = i['score'] * get_category_weight(db=db, category_id=i['category_id'])[0]  # returned as a tuple
+            i['final_score'] = i['score'] * get_category_weight(db=db, category_id=i['category_id'])[
+                0]  # returned as a tuple
         else:
             i['final_score'] = i['score']
         for k in keys_to_remove:

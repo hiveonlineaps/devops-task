@@ -24,9 +24,6 @@ def get_reputation_by_user(db: Session, user_id: int):
     return db.query(Reputation).filter(Reputation.user_id == user_id).order_by(Reputation.id.desc()).first()
 
 
-# def calculate_group_reputation(db: Session):
-
-
 def get_reputations_by_user(db: Session, user_id: int, skip: int = 0, limit: int = 100):
     return db.query(Reputation).filter(Reputation.user_id == user_id).offset(skip).limit(limit).all()
 
@@ -83,9 +80,7 @@ def create_group_reputation_score(db: Session):
         else:
             freq[item] = 1
 
-    print(freq)
     sumdict = dict(counter)
-    print(sumdict)
 
     for k, v in sumdict.items():
         for x, y in freq.items():

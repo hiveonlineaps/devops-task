@@ -60,7 +60,7 @@ class Reputation(Base):
 
 class GroupReputation(Base):
     id = Column(Integer, primary_key=True, index=True)
-    coop_id = Column(Integer, ForeignKey(Memberships.coop_id))  
+    coop_id = Column(Integer, index=True)
     reputation_score = Column(Float)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
 

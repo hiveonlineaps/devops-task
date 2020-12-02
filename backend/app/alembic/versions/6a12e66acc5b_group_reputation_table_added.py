@@ -23,7 +23,6 @@ def upgrade():
     sa.Column('coop_id', sa.Integer(), nullable=True),
     sa.Column('reputation_score', sa.Float(), nullable=True),
     sa.Column('created_date', sa.DateTime(), nullable=True),
-    sa.ForeignKeyConstraint(['coop_id'], ['memberships.coop_id'], ),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_index(op.f('ix_groupreputation_id'), 'groupreputation', ['id'], unique=False)

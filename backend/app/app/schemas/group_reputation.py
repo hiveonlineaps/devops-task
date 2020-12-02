@@ -1,12 +1,13 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 # Shared properties
 class GrpRepBase(BaseModel):
-    coop_id: int = None
-    reputation_score: float = None
-    created_at: datetime = None
+    coop_id: Optional[int] = None
+    reputation_score: Optional[float] = None
+    created_date: datetime = None
 
 
 # Properties to receive on item creation
@@ -22,7 +23,7 @@ class GrpRepUpdate(GrpRepBase):
 
 # Properties shared by models stored in DB
 class GrpRepInDBBase(GrpRepBase):
-    id: int
+    id: Optional[int] = None
 
     class Config:
         orm_mode = True

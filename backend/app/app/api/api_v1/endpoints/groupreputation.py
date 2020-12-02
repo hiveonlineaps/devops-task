@@ -8,6 +8,20 @@ from app import crud, models, schemas
 router = APIRouter()
 
 
+@router.post("/", response_model=schemas.Msg)
+def create_group_reputations(
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+):
+    """
+    create group reputation score
+    """
+
+    if current_user:
+        group_reputation = crud.reputation.create_group_reputation_score(db=db)
+    return group_reputation
+
+
 @router.get("/", response_model=List[schemas.GrpRep])
 def read_group_reputations(
     db: Session = Depends(deps.get_db),
@@ -22,7 +36,7 @@ def read_group_reputations(
     return group_reputation
 
 
-@router.get("/{coop_id}", response_model=List[schemas.GrpRep])
+@router.get("/{coop_id}", response_model=schemas.GrpRep)
 def get_reputation_by_coop_id(
     coop_id: int,
     db: Session = Depends(deps.get_db),
@@ -32,10 +46,29 @@ def get_reputation_by_coop_id(
     Read member reputation scores within a cooperative
     """
     if current_user:
-        group_reputation = crud.reputation.get_group_reputation_score_by_id(db=db, coop_id=coop_id)
-        # if group_reputation is None:
-        #     raise HTTPException(
-        #         status_code=404,
-        #         detail="No reputation scores found for this coop_id"
-        #     )
+        group_reputation = crud.reputation.get_group_reputation_score_by_coop_id(db=db, coop_id=coop_id)
+        if group_reputation is None:
+            raise HTTPException(
+                status_code=404,
+                detail="No reputation scores found for this coop_id"
+            )
+        return group_reputation
+
+
+@router.get("/history/{coop_id}", response_model=List[schemas.GrpRep])
+def get_reputation_history_by_coop_id(
+    coop_id: int,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Depends(deps.get_current_active_user),
+):
+    """
+    Read group reputation history
+    """
+    if current_user:
+        group_reputation = crud.reputation.get_group_reputation_score_history_by_coop_id(db=db, coop_id=coop_id)
+        if group_reputation is None:
+            raise HTTPException(
+                status_code=404,
+                detail="No reputation scores found for this coop_id"
+            )
         return group_reputation

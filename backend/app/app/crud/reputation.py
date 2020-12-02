@@ -5,11 +5,13 @@ from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import collections
+
 import datetime
 from app import schemas
 from pprint import pprint
 
-from app.models.database import Reputation, User, Commitment, Transaction, CommitmentCategory, Memberships
+from app.models.database import Reputation, User, Commitment, Transaction, CommitmentCategory, Memberships, \
+    GroupReputation
 from app.schemas.reputation import ReputationCreate, ReputationInDB, ReputationUpdate
 from app.schemas.group_reputation import GrpRepCreate
 
@@ -20,6 +22,7 @@ def get_reputation(db: Session, skip: int = 0, limit: int = 100) -> List[Reputat
 
 def get_reputation_by_user(db: Session, user_id: int):
     return db.query(Reputation).filter(Reputation.user_id == user_id).order_by(Reputation.id.desc()).first()
+
 
 # def calculate_group_reputation(db: Session):
 
@@ -41,49 +44,79 @@ def create(
 
 def create_group_reputation(
         db: Session, *, obj_in: GrpRepCreate
-) -> Reputation:
+) -> GroupReputation:
     obj_in_data = jsonable_encoder(obj_in)
-    db_obj = Reputation(**obj_in_data)
+    db_obj = GroupReputation(**obj_in_data)
     db.add(db_obj)
     db.commit()
     db.refresh(db_obj)
     return db_obj
 
 
-def get_group_reputation_score(db: Session):
+def create_group_reputation_score(db: Session):
     result = db.query(func.max(Reputation.user_id), Memberships.coop_id, Reputation.reputation_score). \
         filter(Reputation.user_id == Memberships.user_id).group_by(Memberships.coop_id,
                                                                    Reputation.reputation_score).all()
     cols = ['user_id', 'coop_id', 'reputation_score']
     results = [dict(zip(cols, l)) for l in result]
 
+    count = 0
+
     counter = collections.Counter()
 
-    count = 0
     for record in results:
-        counter[record['coop_id']] += record['reputation_score']
+        try:
+            del record['user_id']
+        except KeyError:
+            pass
+    keys = []  # all coop ids list
+    for i in results:
+        counter[i['coop_id']] += i['reputation_score']  # sum up reputation scores
+        for k, v in i.items():
+            if k == 'coop_id':
+                keys.append(v)
 
-        finaldict = dict(counter)
+    freq = {}  # frequency of coop_id
+    for item in keys:
+        if item in freq:
+            freq[item] += 1
+        else:
+            freq[item] = 1
 
-        for key, value in finaldict.items():
-            record_in = schemas.GrpRepCreate(
-                coop_id=key,
-                reputation_score=value,
-                created_at=datetime.datetime.now()
-            )
-            create_group_reputation(db=db, obj_in=record_in)
-            count += 1
+    print(freq)
+    sumdict = dict(counter)
+    print(sumdict)
 
-    return {"msg": "{} new member records added to reputation table!".format(count)}
+    for k, v in sumdict.items():
+        for x, y in freq.items():
+            if k == x:
+                record_in = schemas.GrpRepCreate(
+                    coop_id=x,
+                    reputation_score=v / y,
+                    created_date=datetime.datetime.now()
+                )
+                create_group_reputation(db=db, obj_in=record_in)
+                count += 1
+
+    return {"msg": "{} records added to the group reputation table!".format(count)}
 
 
-def get_group_reputation_score_by_id(db: Session, coop_id: int):
-    result = db.query(func.max(Reputation.user_id), Memberships.coop_id, Reputation.reputation_score). \
-        filter(Reputation.user_id == Memberships.user_id).filter(Memberships.coop_id == coop_id).group_by \
-        (Memberships.coop_id, Reputation.reputation_score).all()
-    cols = ['user_id', 'coop_id', 'reputation_score']
-    results = [dict(zip(cols, l)) for l in result]
-    return results
+def get_group_reputation_score_history_by_coop_id(db: Session, coop_id: int) -> List[GroupReputation]:
+    return (
+        db.query(GroupReputation).filter(GroupReputation.coop_id == coop_id).all()
+    )
+
+
+def get_group_reputation_score_by_coop_id(db: Session, coop_id: int) -> List[GroupReputation]:
+    return (
+        db.query(GroupReputation).filter(GroupReputation.coop_id == coop_id).order_by(GroupReputation.id.desc()).first()
+    )
+
+
+def get_group_reputation_score(db: Session) -> List[GroupReputation]:
+    return (
+        db.query(GroupReputation).all()
+    )
 
 
 def get_reputation_by_deliverer(self, db: Session, *, deliverer: int) -> List[Reputation]:
@@ -184,6 +217,6 @@ def compute_reputation(db: Session):
             'created_date': datetime.datetime.now()
 
         }
-        #create(db=db, obj_in=data)
+        create(db=db, obj_in=data)
 
 # def compute_group_reputation(db: Session):

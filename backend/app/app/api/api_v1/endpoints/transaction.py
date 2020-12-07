@@ -1,10 +1,7 @@
 import os
 import requests
 from typing import Any, List
-import datetime
-from dateutil import parser
-
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
@@ -29,7 +26,29 @@ def read_transactions(
         return transaction
 
 
-@router.get("/delivery/{plan_id}/", response_model=List[schemas.Transaction])
+@router.post("/", response_model=schemas.Transaction)
+def create_transaction(
+    *,
+    db: Session = Depends(deps.get_db),
+    item_in: schemas.TransactionCreate,
+    current_user: models.User = Depends(deps.get_current_active_user),
+) -> Any:
+    """
+    Create new transaction.
+    """
+
+    if current_user:
+        transaction = crud.commitment.get_commitment_by_plan_id(db=db, plan_id=item_in.plan_id)
+        if not transaction:
+            raise HTTPException(
+                status_code=400,
+                detail="Plan ID for this commitment does not exit",
+            )
+        transaction = crud.transaction.create(db=db, obj_in=item_in)
+        return transaction
+
+
+@router.get("/{plan_id}/", response_model=List[schemas.Transaction])
 def read_transaction_by_plan_id(
         *,
         plan_id: int,

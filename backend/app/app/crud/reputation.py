@@ -25,13 +25,13 @@ def get_reputations_by_user(db: Session, user_id: int, skip: int = 0, limit: int
 
 def create(
         db: Session, *, obj_in: ReputationCreate
-    ) -> Reputation:
-        obj_in_data = jsonable_encoder(obj_in)
-        db_obj = Reputation(**obj_in_data)
-        db.add(db_obj)
-        db.commit()
-        db.refresh(db_obj)
-        return db_obj
+) -> Reputation:
+    obj_in_data = jsonable_encoder(obj_in)
+    db_obj = Reputation(**obj_in_data)
+    db.add(db_obj)
+    db.commit()
+    db.refresh(db_obj)
+    return db_obj
 
 
 def get_reputation_by_deliverer(self, db: Session, *, deliverer: int) -> List[Reputation]:
@@ -114,6 +114,7 @@ def compute_reputation(db: Session):
                 0]  # returned as a tuple
         else:
             i['final_score'] = i['score']
+
         for k in keys_to_remove:
             try:
                 del i[k]

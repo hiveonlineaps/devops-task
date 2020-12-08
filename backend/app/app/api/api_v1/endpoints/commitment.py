@@ -57,17 +57,17 @@ def read_commitment_by_deliverer(
         return commitment
 
 
-@router.get("/{commitment_id}", response_model=schemas.Commitment)
-def read_commitment_by_id(
-    commitment_id: int,
+@router.get("/{plan_id}", response_model=schemas.Commitment)
+def read_commitment_by_plan_id(
+    plan_id: int,
     db: Session = Depends(deps.get_db),
     current_user: models.User = Depends(deps.get_current_active_user),
 ) -> Any:
     """
-    Retrieve commitment by id
+    Retrieve commitment by plan id
     """
     if current_user:
-        commitment = crud.transaction.get_commitment_by_id(db=db, commitment_id=commitment_id)
+        commitment = crud.commitment.get_commitment_by_plan_id(db=db, plan_id=plan_id)
         return commitment
 
 

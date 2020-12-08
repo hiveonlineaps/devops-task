@@ -195,6 +195,7 @@ def compute_reputation(db: Session):
                 0]  # returned as a tuple
         else:
             i['final_score'] = i['score']
+
         for k in keys_to_remove:
             try:
                 del i[k]

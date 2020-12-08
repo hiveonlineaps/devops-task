@@ -56,3 +56,11 @@ class Reputation(Base):
     user_id = Column(Integer, ForeignKey(User.identity_user_id))  # user id from identity service
     reputation_score = Column(Float)
     created_date = Column(DateTime, default=datetime.datetime.utcnow)
+
+
+class GroupReputation(Base):
+    id = Column(Integer, primary_key=True, index=True)
+    coop_id = Column(Integer, index=True)
+    reputation_score = Column(Float)
+    created_date = Column(DateTime, default=datetime.datetime.utcnow)
+

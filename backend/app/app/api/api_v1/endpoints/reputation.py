@@ -24,7 +24,7 @@ def read_reputations(
     return reputations
 
 
-@router.get("/reputation/user/{deliverer}", response_model=schemas.Reputation)
+@router.get("/{deliverer}", response_model=schemas.Reputation)
 def get_reputation_by_user_id(
     deliverer: int,
     db: Session = Depends(deps.get_db),
@@ -43,7 +43,7 @@ def get_reputation_by_user_id(
         return db_reputation
 
 
-@router.get("/reputation/history/{deliverer}", response_model=List[schemas.Reputation])
+@router.get("/history/{deliverer}", response_model=List[schemas.Reputation])
 def get_reputation_history_by_user_id(
     deliverer: int,
     db: Session = Depends(deps.get_db),

@@ -1,6 +1,6 @@
 from typing import Any, List
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app import crud, models, schemas
@@ -39,6 +39,25 @@ def create_commitment(
     """
 
     if current_user:
+        category = crud.category.get_commitment_category_by_id(db=db, category_id=item_in.category_id)
+        if category is None:
+            raise HTTPException(
+                status_code=404,
+                detail="This commitment category ID does not exit"
+            )
+        deliverer = crud.user.get_by_identity_user_id(db=db, identity_user_id=item_in.deliverer)
+        if not deliverer:
+            raise HTTPException(
+                status_code=404,
+                detail="Deliverer with this identity user ID does not exit in the user table"
+            )
+        reporter = crud.user.get_by_identity_user_id(db=db, identity_user_id=item_in.reporter)
+        if not reporter:
+            raise HTTPException(
+                status_code=404,
+                detail="Reporter with this identity user ID does not exit in the user table"
+            )
+
         commitment = crud.commitment.create(db=db, obj_in=item_in)
         return commitment
 
